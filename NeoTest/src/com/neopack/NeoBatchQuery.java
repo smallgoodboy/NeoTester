@@ -229,17 +229,17 @@ public class NeoBatchQuery {
 		for(int j=0;j<1;j++){
 			long startMili=System.currentTimeMillis();
 			long tempMili = System.currentTimeMillis();
-			nbq.createNodeCypher("Node", "{foo : 'bar"+0+"'}");
-			nbq.createNodeCypher("Node", "{foo : 'bar"+1+"'}");
-			for(int i=2;i<temp[j];i++){
+			for(int i=0;i<temp[j];i++){
 				nbq.createNodeCypher("Node", "{foo : 'bar"+i+"'}");
-				Map<Object,Object> a = new HashMap<Object,Object>();
-				Map<Object,Object> b = new HashMap<Object,Object>();
-				a.put("foo", "bar"+r.nextInt(i));
-				b.put("foo", "bar"+r.nextInt(i));
-				nbq.createRelation("Node", a, b, "caca", "{qwe:123}");
+				
 				if(i%1000 == 0){
-					
+					for(int k=0;k<1000;k++){
+						Map<Object,Object> a = new HashMap<Object,Object>();
+						Map<Object,Object> b = new HashMap<Object,Object>();
+						a.put("foo", "bar"+r.nextInt(i));
+						b.put("foo", "bar"+r.nextInt(i));
+						nbq.createRelation("Node", a, b, "caca", "{qwe:123}");
+					}
 		             p.print(i+"  ");
 		             p.print((System.currentTimeMillis()-tempMili)+"  ");
 		             p.println((System.currentTimeMillis()-startMili));
