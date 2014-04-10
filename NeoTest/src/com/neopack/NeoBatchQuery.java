@@ -1,9 +1,14 @@
 package com.neopack;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
+
 import scala.util.Random;
 
 public class NeoBatchQuery {
@@ -170,6 +175,10 @@ public class NeoBatchQuery {
 		}
 		queryCounter = 0;
 	}
+	
+	public void endTransmation(){
+		batchQueryNeoDB();
+	}
 
 	public int getQuerySendAmount() {
 		return querySendAmount;
@@ -211,14 +220,17 @@ public class NeoBatchQuery {
 		System.out.println("总耗时为："+(endMili-startMili)+"毫秒");
 	}
 	
-	public static void main(String args[]){
+	public static void main(String args[]) throws IOException{
 		NeoBatchQuery nbq = new NeoBatchQuery();
 		Random r = new Random();
-		int temp[] = {100000,1000000};
-		for(int j=0;j<2;j++){
+		int temp[] = {500000,1000000};
+		FileOutputStream out=new FileOutputStream("D:/neorecord.txt");
+		PrintStream p=new PrintStream(out);
+		for(int j=0;j<1;j++){
 			long startMili=System.currentTimeMillis();
-			nbq.createNode("{\"foo\" : \"bar0\"}");
-			nbq.createNode("{\"foo\" : \"bar1\"}");
+			long tempMili = System.currentTimeMillis();
+			nbq.createNodeCypher("Node", "{foo : 'bar"+0+"'}");
+			nbq.createNodeCypher("Node", "{foo : 'bar"+1+"'}");
 			for(int i=2;i<temp[j];i++){
 				nbq.createNodeCypher("Node", "{foo : 'bar"+i+"'}");
 				Map<Object,Object> a = new HashMap<Object,Object>();
@@ -226,10 +238,20 @@ public class NeoBatchQuery {
 				a.put("foo", "bar"+r.nextInt(i));
 				b.put("foo", "bar"+r.nextInt(i));
 				nbq.createRelation("Node", a, b, "caca", "{qwe:123}");
-	//			if(i%1000 == 0){
-	//				System.out.println(i);
-	//			}
+				if(i%1000 == 0){
+					
+		             p.print(i+"  ");
+		             p.print((System.currentTimeMillis()-tempMili)+"  ");
+		             p.println((System.currentTimeMillis()-startMili));
+					System.out.println(i);
+					System.out.println("Interval cost::"+(System.currentTimeMillis()-tempMili) +"ms");
+					System.out.println("Total:"+(System.currentTimeMillis()-startMili) +"ms");
+					tempMili = System.currentTimeMillis();
+				}
 			}
+			nbq.endTransmation();
+			p.close();
+			out.close();
 	//		
 	//		nbq.createNode("{\"foo\" : \"bar4\"}");
 	//		for(int i=0;i<5000;i++){
@@ -244,7 +266,7 @@ public class NeoBatchQuery {
 	//		}
 			long endMili=System.currentTimeMillis();
 			System.out.println(temp[j]+"个点和线"+" 总耗时为："+(endMili-startMili)+"毫秒");
-			nbq.deleteAll();
+			
 		}
 	}
 }

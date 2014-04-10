@@ -7,7 +7,7 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 
 public class NeoRestConnection {
 
-	final String SERVER_ROOT_URI = "http://localhost:7474";
+	final String SERVER_ROOT_URI = "http://localhost:12345";
 	String NODE_REQUEST_URI = SERVER_ROOT_URI + "/db/data/node";
 	String RELATION_REQUEST_URI = SERVER_ROOT_URI + "/db/data/relationship";
 	String BTACH_REQUEST_URI = SERVER_ROOT_URI+"/db/data/batch";
