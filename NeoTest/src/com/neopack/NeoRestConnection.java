@@ -11,6 +11,7 @@ public class NeoRestConnection {
 	String NODE_REQUEST_URI = SERVER_ROOT_URI + "/db/data/node";
 	String RELATION_REQUEST_URI = SERVER_ROOT_URI + "/db/data/relationship";
 	String BTACH_REQUEST_URI = SERVER_ROOT_URI+"/db/data/batch";
+	String CYPHER_EXEC_URI = SERVER_ROOT_URI + "/db/data/cypher";
 	
 	HttpClient client = new HttpClient();
 	Header mtHeader;
@@ -178,6 +179,30 @@ public class NeoRestConnection {
 			return status;
 		}
 	}
+    
+    @SuppressWarnings("finally")
+	public int execCypher(String request){
+    	PostMethod batchExecPostMethod = new PostMethod();
+    	batchExecPostMethod.addRequestHeader(mtHeader);
+		batchExecPostMethod.setPath(CYPHER_EXEC_URI);
+		int status = 0;
+
+		try {
+//			System.out.println(content);
+			StringRequestEntity requestEntity = new StringRequestEntity(request,
+			        "application/json",
+			        "UTF-8");
+			batchExecPostMethod.setRequestEntity(requestEntity);
+            status = client.executeMethod(batchExecPostMethod);
+            batchExecPostMethod.releaseConnection();
+//            System.out.println(satus);
+//            System.out.println(batchExecPostMethod.getResponseBodyAsString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			return status;
+		}
+    }
     
     
     

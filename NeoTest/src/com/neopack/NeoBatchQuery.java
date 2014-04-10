@@ -179,7 +179,12 @@ public class NeoBatchQuery {
 		this.querySendAmount = querySendAmount;
 	}
 	
-	public static void main(String args[]){
+	public void deleteAll(){
+		String deleteString = "match n optional match (n)-[r]->() delete n,r";
+		neoDBConnector.execCypher(deleteString);
+	}
+	
+	public static void main2(String args[]){
 		NeoBatchQuery nbq = new NeoBatchQuery();
 		Random r = new Random();
 		long startMili=System.currentTimeMillis();
@@ -188,7 +193,7 @@ public class NeoBatchQuery {
 //			if(i%1000 == 0){
 //				System.out.println(i);
 //			}
-//			}
+//		}
 //		nbq.createNode("{\"foo\" : \"bar2\"}");
 //		nbq.createNode("{\"foo\" : \"bar3\"}");
 //		nbq.createNode("{\"foo\" : \"bar4\"}");
@@ -204,5 +209,42 @@ public class NeoBatchQuery {
 		}
 		long endMili=System.currentTimeMillis();
 		System.out.println("总耗时为："+(endMili-startMili)+"毫秒");
+	}
+	
+	public static void main(String args[]){
+		NeoBatchQuery nbq = new NeoBatchQuery();
+		Random r = new Random();
+		int temp[] = {100000,1000000};
+		for(int j=0;j<2;j++){
+			long startMili=System.currentTimeMillis();
+			nbq.createNode("{\"foo\" : \"bar0\"}");
+			nbq.createNode("{\"foo\" : \"bar1\"}");
+			for(int i=2;i<temp[j];i++){
+				nbq.createNodeCypher("Node", "{foo : 'bar"+i+"'}");
+				Map<Object,Object> a = new HashMap<Object,Object>();
+				Map<Object,Object> b = new HashMap<Object,Object>();
+				a.put("foo", "bar"+r.nextInt(i));
+				b.put("foo", "bar"+r.nextInt(i));
+				nbq.createRelation("Node", a, b, "caca", "{qwe:123}");
+	//			if(i%1000 == 0){
+	//				System.out.println(i);
+	//			}
+			}
+	//		
+	//		nbq.createNode("{\"foo\" : \"bar4\"}");
+	//		for(int i=0;i<5000;i++){
+	//			Map<Object,Object> a = new HashMap<Object,Object>();
+	//			Map<Object,Object> b = new HashMap<Object,Object>();
+	//			a.put("foo", "bar"+r.nextInt(100000));
+	//			b.put("foo", "bar"+r.nextInt(100000));
+	//			nbq.createRelation("Node", a, b, "caca", "{qwe:123}");
+	//			if(i%100 == 0){
+	//				System.out.println(i);
+	//			}
+	//		}
+			long endMili=System.currentTimeMillis();
+			System.out.println(temp[j]+"个点和线"+" 总耗时为："+(endMili-startMili)+"毫秒");
+			nbq.deleteAll();
+		}
 	}
 }
