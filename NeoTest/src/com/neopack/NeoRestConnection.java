@@ -181,15 +181,26 @@ public class NeoRestConnection {
 	}
     
     @SuppressWarnings("finally")
+    /**
+     * {
+		  "query" : "MATCH path = (x {name: 'I'})--(friend) RETURN path, friend.name",
+		  "params" : {
+		  }
+		}
+     * @param request
+     * @return
+     */
 	public int execCypher(String request){
     	PostMethod batchExecPostMethod = new PostMethod();
     	batchExecPostMethod.addRequestHeader(mtHeader);
 		batchExecPostMethod.setPath(CYPHER_EXEC_URI);
 		int status = 0;
-
+		//request = "match (a:Node{foo:'bar3'}) optional match (a)-[r]-() delete a,r";
+		String totalRequest = "{\"query\" : \"" + request + "\",\"params\" : {}}";
+//		System.out.println(totalRequest);
 		try {
 //			System.out.println(content);
-			StringRequestEntity requestEntity = new StringRequestEntity(request,
+			StringRequestEntity requestEntity = new StringRequestEntity(totalRequest,
 			        "application/json",
 			        "UTF-8");
 			batchExecPostMethod.setRequestEntity(requestEntity);
@@ -209,8 +220,9 @@ public class NeoRestConnection {
     
     public static void main(String args[]){
     	NeoRestConnection nrc = new NeoRestConnection();
-    	nrc.createNode("{\"foo\" : \"bar\"}");
-    	nrc.createNode("{\"kaka\" : 123}");
-    	nrc.createRelationship(30 , 31, "fror", "{ \"married\" : \"yes\",\"since\" : \"2005\" }");
+//    	nrc.createNode("{\"foo\" : \"bar\"}");
+//    	nrc.createNode("{\"kaka\" : 123}");
+//    	nrc.createRelationship(30 , 31, "fror", "{ \"married\" : \"yes\",\"since\" : \"2005\" }");
+    	nrc.execCypher(new CypherGenerater().deleteNode("Node", "{foo:'bar5'}"));
     }
 }

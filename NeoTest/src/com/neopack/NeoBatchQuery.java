@@ -33,7 +33,7 @@ public class NeoBatchQuery {
 	 * If @queryCounter > @querySendAmount,
 	 * we will send data in @queryRecordQueue to db.
 	 */
-	private int querySendAmount = 50;
+	private int querySendAmount = 100;
 	
 	/**
 	 * {\"method\":\"POST\",\"to\":\"/node\",\"body\":{\"nom\":\"organisation\",\"kaka\":\"123\"}}
@@ -170,7 +170,7 @@ public class NeoBatchQuery {
 	public void batchQueryNeoDB(){
 		String batchString = sendDBSentense();
 		//System.out.println(batchString);
-		if(batchString != null){
+		if(batchString != null && batchString.length()>1){
 			neoDBConnector.batchExecREST(batchString);
 		}
 		queryCounter = 0;
@@ -193,29 +193,39 @@ public class NeoBatchQuery {
 		neoDBConnector.execCypher(deleteString);
 	}
 	
+	public void deleteNode(String nodeLabel, String nodeProperty){
+		String queryStringResult = "{\"method\": \"POST\",\"to\": \"/cypher\",\"body\": {\"query\" : \"";
+		String resString = "match (a:"+ nodeLabel + nodeProperty +") optional match (a)-[r]-() delete a,r";
+		queryStringResult += (resString + "\"}}");
+		queryRecordQueue.offer(queryStringResult);
+		queryCounterIncrease();
+//		return queryStringResult;
+	}
+	
 	public static void main2(String args[]){
 		NeoBatchQuery nbq = new NeoBatchQuery();
 		Random r = new Random();
 		long startMili=System.currentTimeMillis();
-//		for(int i=0;i<100000;i++){
-//			nbq.createNodeCypher("Node", "{foo : 'bar"+i+"'}");
-//			if(i%1000 == 0){
-//				System.out.println(i);
-//			}
-//		}
+		for(int i=0;i<1000;i++){
+			nbq.createNodeCypher("Node", "{foo : 'bar"+i+"'}");
+			if(i%1000 == 0){
+				System.out.println(i);
+			}
+		}
 //		nbq.createNode("{\"foo\" : \"bar2\"}");
 //		nbq.createNode("{\"foo\" : \"bar3\"}");
 //		nbq.createNode("{\"foo\" : \"bar4\"}");
-		for(int i=0;i<5000;i++){
+		for(int i=0;i<1000;i++){
 			Map<Object,Object> a = new HashMap<Object,Object>();
 			Map<Object,Object> b = new HashMap<Object,Object>();
-			a.put("foo", "bar"+r.nextInt(100000));
-			b.put("foo", "bar"+r.nextInt(100000));
-			nbq.createRelation("Node", a, b, "caca", "{qwe:123}");
+			a.put("foo", "bar"+r.nextInt(1000));
+			b.put("foo", "bar"+r.nextInt(1000));
+			nbq.createRelation("Node", a, b, "caca", "{qwe:"+i+"}");
 			if(i%100 == 0){
 				System.out.println(i);
 			}
 		}
+		nbq.endTransmation();
 		long endMili=System.currentTimeMillis();
 		System.out.println("总耗时为："+(endMili-startMili)+"毫秒");
 	}
@@ -223,22 +233,22 @@ public class NeoBatchQuery {
 	public static void main(String args[]) throws IOException{
 		NeoBatchQuery nbq = new NeoBatchQuery();
 		Random r = new Random();
-		int temp[] = {500000,1000000};
+		//int temp[] = {500000,1000000};
 		FileOutputStream out=new FileOutputStream("D:/neorecord.txt");
 		PrintStream p=new PrintStream(out);
 		for(int j=0;j<1;j++){
 			long startMili=System.currentTimeMillis();
 			long tempMili = System.currentTimeMillis();
-			for(int i=0;i<temp[j];i++){
-				nbq.createNodeCypher("Node", "{foo : 'bar"+i+"'}");
+			for(int i=1800200;i<2000000;i++){
+				nbq.createNodeCypher("Node", "{foo : '"+i+"'}");
 				
-				if(i%1000 == 0){
+				if(i%1000 == 0 && i!= 0){
 					for(int k=0;k<1000;k++){
 						Map<Object,Object> a = new HashMap<Object,Object>();
 						Map<Object,Object> b = new HashMap<Object,Object>();
-						a.put("foo", "bar"+r.nextInt(i));
-						b.put("foo", "bar"+r.nextInt(i));
-						nbq.createRelation("Node", a, b, "caca", "{qwe:123}");
+						a.put("foo", ""+r.nextInt(i));
+						b.put("foo", ""+r.nextInt(i));
+						nbq.createRelation("Node", a, b, "caca", "{qwe:"+(i+k)+"}");
 					}
 		             p.print(i+"  ");
 		             p.print((System.currentTimeMillis()-tempMili)+"  ");
@@ -265,7 +275,7 @@ public class NeoBatchQuery {
 	//			}
 	//		}
 			long endMili=System.currentTimeMillis();
-			System.out.println(temp[j]+"个点和线"+" 总耗时为："+(endMili-startMili)+"毫秒");
+			System.out.println(" 总耗时为："+(endMili-startMili)+"毫秒");
 			
 		}
 	}

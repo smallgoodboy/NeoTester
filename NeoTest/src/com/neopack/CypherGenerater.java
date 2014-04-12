@@ -54,4 +54,16 @@ public class CypherGenerater {
     	requestString = "match a where " + requestString + " match (a)-[r]->(b) return a,r,b";
     	return requestString;
     }
+    
+    /**
+     * match (a:Node{foo:'bar3'}) optional match (a)-[r]-() delete a,r
+     * @param nodeLabel
+     * @param nodeProperty
+     * @return
+     */
+    public String deleteNode(String nodeLabel, String nodeProperty){
+    	String resString = "match (a:"+ nodeLabel + nodeProperty +") optional match (a)-[r]-() delete a,r";
+    	System.out.println(resString);
+    	return resString;
+    }
 }
