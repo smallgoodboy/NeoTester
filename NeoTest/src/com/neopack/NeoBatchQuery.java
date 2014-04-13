@@ -33,7 +33,7 @@ public class NeoBatchQuery {
 	 * If @queryCounter > @querySendAmount,
 	 * we will send data in @queryRecordQueue to db.
 	 */
-	private int querySendAmount = 100;
+	private int querySendAmount = 1000;
 	
 	/**
 	 * {\"method\":\"POST\",\"to\":\"/node\",\"body\":{\"nom\":\"organisation\",\"kaka\":\"123\"}}
@@ -239,11 +239,11 @@ public class NeoBatchQuery {
 		for(int j=0;j<1;j++){
 			long startMili=System.currentTimeMillis();
 			long tempMili = System.currentTimeMillis();
-			for(int i=1800200;i<2000000;i++){
+			for(int i=2000000;i<3000000;i++){
 				nbq.createNodeCypher("Node", "{foo : '"+i+"'}");
 				
-				if(i%1000 == 0 && i!= 0){
-					for(int k=0;k<1000;k++){
+				if(i%10000 == 0 && i!= 0){
+					for(int k=0;k<10000;k++){
 						Map<Object,Object> a = new HashMap<Object,Object>();
 						Map<Object,Object> b = new HashMap<Object,Object>();
 						a.put("foo", ""+r.nextInt(i));
