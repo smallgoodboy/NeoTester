@@ -20,10 +20,10 @@ import org.neo4j.graphdb.schema.Schema;
 public class Wrapper {
 	GraphDatabaseService graphDb;
 	Transaction tx;
-	String DB_PATH  = "D:\\neo4jdb";
+	String DB_PATH  = "E:\\neo4jdb";
 	
 	int operatorCounter = 0;
-	int operatorMax = 10000;
+	int operatorMax = 100;
 	
 	public static enum RelTypes implements RelationshipType
 	{
@@ -43,6 +43,7 @@ public class Wrapper {
 		Label label = DynamicLabel.label(labelString);
 		Node node = graphDb.createNode(label);
 		node.setProperty(nodePropertyKey, nodePropertyValue);
+		recordPlus();
 	}
 	
 	public void createRelation(String node1Label, String node1Key, Object node1Value,
@@ -62,6 +63,7 @@ public class Wrapper {
 				relationship.setProperty(relationKey, relationValue);
 			}
 		}
+		recordPlus();
 	}
 	
 	public synchronized void recordPlus(){
@@ -83,7 +85,13 @@ public class Wrapper {
 		IndexDefinition indexDefinition = schema.indexFor( DynamicLabel.label(indexLabel) )
 	            .on(indexKey)
 	            .create();
-		schema.awaitIndexOnline( indexDefinition, 10, TimeUnit.SECONDS );
+		sendToDB();
+		waitForIndexComplete(indexDefinition);
+	}
+	
+	public void waitForIndexComplete(IndexDefinition indexDefinition){
+		Schema schema = graphDb.schema();
+	    schema.awaitIndexOnline( indexDefinition, 10, TimeUnit.SECONDS );
 	}
 	
 	
@@ -92,8 +100,7 @@ public class Wrapper {
 		Random r = new Random();
 		long startMili=System.currentTimeMillis();
 		long tempMili = System.currentTimeMillis();
-		w.createIndex("Node", "foo");
-		w.sendToDB();
+//		w.createIndex("Node", "foo");
 		for(int i=0;i<100000;i++){
 			w.createNode("Node", "foo", i);
 			if(i%1000 == 0 && i != 0){
@@ -103,6 +110,7 @@ public class Wrapper {
 				System.out.println(i);
 				System.out.println("Interval cost::"+(System.currentTimeMillis()-tempMili) +"ms");
 				System.out.println("Total:"+(System.currentTimeMillis()-startMili) +"ms");
+				tempMili = System.currentTimeMillis();
 			}
 		}
 //		w.createNode("Node", "foo", 123);
