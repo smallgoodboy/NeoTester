@@ -17,7 +17,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 public class Wrapper {
 	GraphDatabaseService graphDb;
 	Transaction tx;
-	String DB_PATH  = "E:\\neo4jdb";
+	String DB_PATH  = "D:\\neo4jdb";
 	
 	int operatorCounter = 0;
 	int operatorMax = 10000;
@@ -79,12 +79,17 @@ public class Wrapper {
 	public static void main(String args[]){
 		Wrapper w = new Wrapper();
 		Random r = new Random();
+		long startMili=System.currentTimeMillis();
+		long tempMili = System.currentTimeMillis();
 		for(int i=0;i<100000;i++){
 			w.createNode("Node", "foo", i);
-			if(i%1000 == 0){
+			if(i%1000 == 0 && i != 0){
 				for(int j=0;j<1000;j++){
 					w.createRelation("Node", "foo", r.nextInt(i), "Node", "foo", r.nextInt(i), Wrapper.RelTypes.KNOWS, "RRRR", i+j);
 				}
+				System.out.println(i);
+				System.out.println("Interval cost::"+(System.currentTimeMillis()-tempMili) +"ms");
+				System.out.println("Total:"+(System.currentTimeMillis()-startMili) +"ms");
 			}
 		}
 //		w.createNode("Node", "foo", 123);
