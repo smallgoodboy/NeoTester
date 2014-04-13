@@ -11,6 +11,8 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.graphdb.schema.IndexDefinition;
+import org.neo4j.graphdb.schema.Schema;
 
 
 
@@ -75,12 +77,20 @@ public class Wrapper {
 		tx = graphDb.beginTx();
 	}
 	
+	public void createIndex(String indexLabel, String indexKey){
+		Schema schema = graphDb.schema();
+		IndexDefinition indexDefinition = schema.indexFor( DynamicLabel.label(indexLabel) )
+	            .on(indexKey)
+	            .create();
+	}
+	
 	
 	public static void main(String args[]){
 		Wrapper w = new Wrapper();
 		Random r = new Random();
 		long startMili=System.currentTimeMillis();
 		long tempMili = System.currentTimeMillis();
+		w.createIndex("Node", "foo");
 		for(int i=0;i<100000;i++){
 			w.createNode("Node", "foo", i);
 			if(i%1000 == 0 && i != 0){
