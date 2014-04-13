@@ -1,6 +1,7 @@
 package com.local.test;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -82,6 +83,7 @@ public class Wrapper {
 		IndexDefinition indexDefinition = schema.indexFor( DynamicLabel.label(indexLabel) )
 	            .on(indexKey)
 	            .create();
+		schema.awaitIndexOnline( indexDefinition, 10, TimeUnit.SECONDS );
 	}
 	
 	
@@ -91,6 +93,7 @@ public class Wrapper {
 		long startMili=System.currentTimeMillis();
 		long tempMili = System.currentTimeMillis();
 		w.createIndex("Node", "foo");
+		w.sendToDB();
 		for(int i=0;i<100000;i++){
 			w.createNode("Node", "foo", i);
 			if(i%1000 == 0 && i != 0){
