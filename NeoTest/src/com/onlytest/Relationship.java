@@ -1,4 +1,4 @@
-package com;
+package com.onlytest;
 
 /**
  * Created by IntelliJ IDEA.

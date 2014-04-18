@@ -1,4 +1,4 @@
-package com;
+package com.onlytest;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;

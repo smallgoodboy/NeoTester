@@ -1,8 +1,19 @@
-package com.tt;
+package com.onlytest;
 
 import java.io.IOException;
 import java.util.Random;
 import java.util.Vector;
+
+//import net.sf.json.JSONArray;
+//import net.sf.json.JSONObject;
+
+
+
+
+
+
+
+
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -16,12 +27,11 @@ import org.neo4j.shell.util.json.JSONArray;
 import org.neo4j.shell.util.json.JSONException;
 import org.neo4j.shell.util.json.JSONObject;
 
-public class NeoPacker2 {
+public class NeoPacker {
 
-	final String SERVER_ROOT_URI = "http://localhost:7474";
+	final String SERVER_ROOT_URI = "http://202.115.30.191:12345";
 	String nodePointUrl = this.SERVER_ROOT_URI + "/db/data/node";
 	String relationshipPointUrl = this.SERVER_ROOT_URI + "/db/data/relationship";
-	String batchExecPath = SERVER_ROOT_URI+"/db/data/batch";
 	HttpClient client = new HttpClient();
 	Header mtHeader;
 	
@@ -31,8 +41,6 @@ public class NeoPacker2 {
 	DeleteMethod deleteNodeMethod;
 	PutMethod putMethod;
 	GetMethod getMethod;
-	PostMethod addRelationshipCypherPostMethod;
-	PostMethod batchExecPostMethod;
 	
 	@SuppressWarnings("unused")
 	private static enum RelTypes implements RelationshipType
@@ -40,7 +48,7 @@ public class NeoPacker2 {
         KNOWS,friend;
     }
 	
-	public NeoPacker2(){
+	public NeoPacker(){
 		initMTHeader();
 	}
 	
@@ -53,10 +61,10 @@ public class NeoPacker2 {
         
         createNodePostMethod = new PostMethod();
         createNodePostMethod.addRequestHeader(mtHeader);
-//        
+        
         createRelationMethod = new PostMethod();
         createRelationMethod.addRequestHeader(mtHeader);
-//        
+        
         queryNodePostMethod = new PostMethod();
         queryNodePostMethod.addRequestHeader(mtHeader);
         
@@ -65,12 +73,6 @@ public class NeoPacker2 {
         
         getMethod = new GetMethod();
         getMethod.addRequestHeader(mtHeader);
-        
-        addRelationshipCypherPostMethod = new PostMethod();
-        addRelationshipCypherPostMethod.addRequestHeader(mtHeader);
-        
-        batchExecPostMethod = new PostMethod();
-        batchExecPostMethod.addRequestHeader(mtHeader);
 	}
 	
 	/**
@@ -84,6 +86,7 @@ public class NeoPacker2 {
     public int createNode(String nodeProperty_json){
     	int satus = 0;
         try{
+        	createNodePostMethod = new PostMethod();
             /**
              * set json payload
              */
@@ -94,6 +97,7 @@ public class NeoPacker2 {
             createNodePostMethod.addRequestHeader(mtHeader);
             createNodePostMethod.setRequestEntity(requestEntity);
             satus = client.executeMethod(createNodePostMethod);
+            createNodePostMethod.releaseConnection();
 
             return satus;
         }catch(Exception e){
@@ -119,10 +123,8 @@ public class NeoPacker2 {
                                    int endNodeNumber,
                                    String relationshipType,
                                    String jsonAttributes){
-    	//HttpClient client = new HttpClient();
     	int satus = 0;
         try{
-        	//PostMethod createRelationMethod = new PostMethod();
             String fromUrl = this.nodePointUrl + "/" + startNodeNumber + "/relationships";
 
             String relationshipJson = generateJsonRelationship( endNodeNumber,
@@ -136,11 +138,9 @@ public class NeoPacker2 {
             StringRequestEntity requestEntity = new StringRequestEntity(relationshipJson,
                                                                         "application/json",
                                                                         "UTF-8");
-            System.out.println(requestEntity.getContent());
             createRelationMethod.setRequestEntity(requestEntity);
             satus = client.executeMethod(createRelationMethod);
 
-            //createRelationMethod.releaseConnection();
         }catch(Exception e){
              e.printStackTrace();
         }
@@ -148,53 +148,6 @@ public class NeoPacker2 {
         return satus;
 
     }
-    
-    public int addRelationshipCypher(int startNodeNumber,
-            int endNodeNumber,
-            String relationshipType,
-            String jsonAttributes){
-		int satus = 0;
-			try{
-	            String nodePointUrl = this.SERVER_ROOT_URI + "/db/data/cypher";
-	            addRelationshipCypherPostMethod.setPath(nodePointUrl);
-
-	            
-	            /**
-	             * set json payload
-	             */
-	            StringRequestEntity requestEntity = new StringRequestEntity("{\"query\" : \"MATCH (a),(b) WHERE a.id='" + startNodeNumber + "'AND b.id='" + endNodeNumber + "' CREATE (a)-[r:RELTYPE]->(b) RETURN r\"}",
-	                                                                        "application/json",
-	                                                                        "UTF-8");
-	            //System.out.println(requestEntity.getContent());
-	            addRelationshipCypherPostMethod.setRequestEntity(requestEntity);
-	            satus = client.executeMethod(addRelationshipCypherPostMethod);
-//	            output = queryNodePostMethod.getResponseBodyAsString( );
-
-
-	            
-//				String fromUrl = this.nodePointUrl + "/" + startNodeNumber + "/relationships";
-//				
-//				String relationshipJson = generateJsonRelationship( endNodeNumber,
-//				                                         relationshipType,
-//				                                         jsonAttributes );
-//				createRelationMethod.setPath(fromUrl);
-//				
-//				/**
-//				* set json payload
-//				*/
-//				StringRequestEntity requestEntity = new StringRequestEntity(relationshipJson,
-//				                                                 "application/json",
-//				                                                 "UTF-8");
-//				createRelationMethod.setRequestEntity(requestEntity);
-//				satus = client.executeMethod(createRelationMethod);
-			
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-		
-		return satus;
-		
-		}
     
     /**
      * generates the json payload which is to passed to relationship url
@@ -302,6 +255,7 @@ public class NeoPacker2 {
 	public Vector<Integer> queryNode(String key, String value){
 		String output = null;
     	try{
+    		queryNodePostMethod = new PostMethod();
             String nodePointUrl = this.SERVER_ROOT_URI + "/db/data/cypher";
             queryNodePostMethod.setPath(nodePointUrl);
 
@@ -309,51 +263,21 @@ public class NeoPacker2 {
             /**
              * set json payload
              */
-            StringRequestEntity requestEntity = new StringRequestEntity("{\"query\" : \"MATCH (n) optional match (n)-[r]-() RETURN n,r limit 10;\"}",
+            StringRequestEntity requestEntity = new StringRequestEntity("{\"query\" : \"MATCH (n {" + key + ":'" + value + "'}) RETURN n;\"}",
                                                                         "application/json",
                                                                         "UTF-8");
-            //System.out.println(requestEntity.getContent());
+            System.out.println(requestEntity.getContent());
             queryNodePostMethod.setRequestEntity(requestEntity);
             @SuppressWarnings("unused")
 			int satus = client.executeMethod(queryNodePostMethod);
             output = queryNodePostMethod.getResponseBodyAsString( );
+            queryNodePostMethod.releaseConnection();
 
-            System.out.println(output);
             return resolveJSONToNodes(output);
     	}catch(Exception e){
             e.printStackTrace();
        }
     	return new Vector<Integer>();
-	}
-	
-	public void batchExecREST(){
-		batchExecPostMethod.setPath(batchExecPath);
-		String content = "["
-		    +"{\"method\":\"POST\",\"to\":\"/node\",\"body\":{\"nom\":\"organisation\",\"kaka\":123}},"
-		    +"{\"method\":\"POST\",\"to\":\"/node\",\"body\":{\"nom\":\"etablissement\"}},"
-		    +"{"
-		    +    "\"method\": \"POST\","
-		    +    "\"to\": \"/cypher\","
-		    +    "\"id\": 1,"
-		    +    "\"body\": {"
-		    +      "\"query\" : \"MATCH a,b WHERE a.kaka=123 AND b.nom='organisation' CREATE b-[r:est]->a RETURN a, b, r\","
-		    +      "\"params\" : {"
-		    +        "\"aVal\" : \"etablissement\","
-		    +        "\"bVal\" : \"organisation\""
-		    +      "}}}]";
-		try {
-			System.out.println(content);
-			StringRequestEntity requestEntity = new StringRequestEntity(content,
-			        "application/json",
-			        "UTF-8");
-			batchExecPostMethod.setRequestEntity(requestEntity);
-            int satus = client.executeMethod(batchExecPostMethod);
-            System.out.println(satus);
-            System.out.println(batchExecPostMethod.getResponseBodyAsString());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 	
 	public Vector<Integer> resolveJSONToNodes(String json) throws JSONException{
@@ -415,35 +339,42 @@ public class NeoPacker2 {
 		//jsonObject.get(key);
 	}
 	
-	
-	public static void main2(String args[]){
-		NeoPacker2 np = new NeoPacker2();
+	@SuppressWarnings("rawtypes")
+	public static void main(String args[]){
+		NeoPacker np = new NeoPacker();
 //		np.createNode("{\"name\":\"haha\"}");
 //		np.createNode("{\"name\":\"hahass\"}");
 //		np.addRelationship(1435, 1434, "frr", "{ \"married\" : \"yes\",\"since\" : \"2005\" }");
 //		np.addRelationship(1441, 1442, "frr", "{ \"married\" : \"yes\",\"since\" : \"2005\" }");
 		int start,end;
 		Random r= new Random();
-		for(int i=0;i<200;i++){
-			np.createNode("{\"id\":\""+String.valueOf(i)+"\"}");
-			if(i%20 == 0)
-				System.out.println(i);
-		}
+//		for(int i=0;i<400;i++){
+//			np.createNode("{\"id\":\""+String.valueOf(i)+"\"}");
+//			if(i%20 == 0)
+//				System.out.println(i);
+//		}
+		Vector a;
+		Vector b;
 		for(int i=0;i<1000;i++){
 			while(
-			(start = r.nextInt(200)) ==
-			(end = r.nextInt(200))){}
+			(start = r.nextInt(400)) ==
+			(end = r.nextInt(400))){}
 //			if(np.queryNode("id",String.valueOf(start)).size()==0){
 //				np.createNode("{\"id\":\""+String.valueOf(start)+"\"}");
 //			}
 //			if(np.queryNode("id",String.valueOf(end)).size()==0){
 //				np.createNode("{\"id\":\""+String.valueOf(end)+"\"}");
 //			}
-			np.addRelationshipCypher(start,end,null,null);
-//			int a = np.queryNode("id", String.valueOf(start)).firstElement();
-//			int b =np.queryNode("id", String.valueOf(end)).firstElement();
-//			np.addRelationship(a, b, "frr", "{ \"married\" : \"yes\",\"since\" : \"2005\" }");
-			
+			a = np.queryNode("id", String.valueOf(start));
+			b =np.queryNode("id", String.valueOf(end));
+			if(a.size()!=0&&b.size()!=0)
+			np.addRelationship((int)a.firstElement(), (int)b.firstElement(), "frr", "{ \"married\" : \"yes\",\"since\" : \"2005\" }");
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			if(i%200 == 0)
 			System.out.println(i);
 		}
@@ -454,11 +385,6 @@ public class NeoPacker2 {
 //		np.deleteNode(1436);
 //		np.deleteNode(1437);
 		//np.deleteNode(1423);
-	}
-	
-	public static void main(String args[]){
-		NeoPacker2 np = new NeoPacker2();
-		np.queryNode(null, null);
 	}
 	
 }
