@@ -20,10 +20,10 @@ import org.neo4j.graphdb.schema.Schema;
 public class Wrapper {
 	GraphDatabaseService graphDb;
 	Transaction tx;
-	String DB_PATH  = "E:\\neo4jdb";
+	String DB_PATH  = "E:\\neo4jdb2";
 	
 	int operatorCounter = 0;
-	int operatorMax = 100;
+	int operatorMax = 5000;
 	
 	public static enum RelTypes implements RelationshipType
 	{
@@ -101,10 +101,10 @@ public class Wrapper {
 		long startMili=System.currentTimeMillis();
 		long tempMili = System.currentTimeMillis();
 //		w.createIndex("Node", "foo");
-		for(int i=0;i<100000;i++){
+		for(int i=0;i<500000;i++){
 			w.createNode("Node", "foo", i);
-			if(i%1000 == 0 && i != 0){
-				for(int j=0;j<1000;j++){
+			if(i%10000 == 0 && i != 0){
+				for(int j=0;j<10000;j++){
 					w.createRelation("Node", "foo", r.nextInt(i), "Node", "foo", r.nextInt(i), Wrapper.RelTypes.KNOWS, "RRRR", i+j);
 				}
 				System.out.println(i);

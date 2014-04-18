@@ -12,6 +12,9 @@ import java.util.Vector;
 
 
 
+
+
+
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.DeleteMethod;
@@ -186,7 +189,8 @@ public class NeoPacker {
      */
     public Node getNode(int nodeNumber){
     	Node node = new Node();
-    	int status;
+    	@SuppressWarnings("unused")
+		int status;
     	node.setSelfLoaction(this.nodePointUrl + "/" + nodeNumber);
     	String output;
 		try {
@@ -264,7 +268,8 @@ public class NeoPacker {
                                                                         "UTF-8");
             System.out.println(requestEntity.getContent());
             queryNodePostMethod.setRequestEntity(requestEntity);
-            int satus = client.executeMethod(queryNodePostMethod);
+            @SuppressWarnings("unused")
+			int satus = client.executeMethod(queryNodePostMethod);
             output = queryNodePostMethod.getResponseBodyAsString( );
             queryNodePostMethod.releaseConnection();
 
@@ -334,6 +339,7 @@ public class NeoPacker {
 		//jsonObject.get(key);
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public static void main(String args[]){
 		NeoPacker np = new NeoPacker();
 //		np.createNode("{\"name\":\"haha\"}");

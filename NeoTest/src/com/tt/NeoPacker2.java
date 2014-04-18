@@ -1,24 +1,11 @@
 package com.tt;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Random;
 import java.util.Vector;
 
-//import net.sf.json.JSONArray;
-//import net.sf.json.JSONObject;
-
-
-
-
-
-
-
-
-
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -249,7 +236,8 @@ public class NeoPacker2 {
      */
     public Node getNode(int nodeNumber){
     	Node node = new Node();
-    	int status;
+    	@SuppressWarnings("unused")
+		int status;
     	node.setSelfLoaction(this.nodePointUrl + "/" + nodeNumber);
     	String output;
 		try {
@@ -326,7 +314,8 @@ public class NeoPacker2 {
                                                                         "UTF-8");
             //System.out.println(requestEntity.getContent());
             queryNodePostMethod.setRequestEntity(requestEntity);
-            int satus = client.executeMethod(queryNodePostMethod);
+            @SuppressWarnings("unused")
+			int satus = client.executeMethod(queryNodePostMethod);
             output = queryNodePostMethod.getResponseBodyAsString( );
 
             System.out.println(output);

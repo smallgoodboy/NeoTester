@@ -111,7 +111,8 @@ public class Tester
         // END SNIPPET: transaction
     }
 
-    private void clearDb()
+    @SuppressWarnings("unused")
+	private void clearDb()
     {
         try
         {
@@ -340,7 +341,8 @@ public class Tester
 		return sb.toString();
 		}
     
-    private void addPropertyToRelation( String relationshipUri,
+    @SuppressWarnings("unused")
+	private void addPropertyToRelation( String relationshipUri,
             String propertyName,
             String propertyValue ){
 

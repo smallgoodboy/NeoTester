@@ -25,7 +25,8 @@ public class Neo4jHello {
     Relationship relationship;
     final String SERVER_ROOT_URI = "http://localhost:7474";
 
-    private static enum RelTypes implements RelationshipType
+    @SuppressWarnings("unused")
+	private static enum RelTypes implements RelationshipType
     {
         KNOWS,friend;
     }
@@ -177,7 +178,8 @@ public class Neo4jHello {
 //                                                                        "application/json",
 //                                                                        "UTF-8");
 //            mPost.setRequestEntity(requestEntity);
-            int satus = client.executeMethod(mPost);
+            @SuppressWarnings("unused")
+			int satus = client.executeMethod(mPost);
             output = mPost.getResponseBodyAsString( );
 //            Header locationHeader =  mPost.getResponseHeader("location");
 //            location = locationHeader.getValue();
@@ -220,7 +222,8 @@ public class Neo4jHello {
 //            mPost.setRequestEntity(requestEntity);
             int satus = client.executeMethod(mPost);
             output = mPost.getResponseBodyAsString( );
-            Header locationHeader =  mPost.getResponseHeader("location");
+            @SuppressWarnings("unused")
+			Header locationHeader =  mPost.getResponseHeader("location");
             //location = locationHeader.getValue();
             mPost.releaseConnection( );
             System.out.println("satus : " + satus);
@@ -266,7 +269,8 @@ public class Neo4jHello {
             mPost.setRequestEntity(requestEntity);
             int satus = client.executeMethod(mPost);
             output = mPost.getResponseBodyAsString( );
-            Header locationHeader =  mPost.getResponseHeader("location");
+            @SuppressWarnings("unused")
+			Header locationHeader =  mPost.getResponseHeader("location");
             //location = locationHeader.getValue();
             mPost.releaseConnection( );
             System.out.println("satus : " + satus);
@@ -423,7 +427,8 @@ public class Neo4jHello {
      * @param propertyName
      * @param propertyValue
      */
-    private void addPropertyToRelation( String relationshipUri,
+    @SuppressWarnings("unused")
+	private void addPropertyToRelation( String relationshipUri,
                                         String propertyName,
                                         String propertyValue ){
 
