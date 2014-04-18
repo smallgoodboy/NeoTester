@@ -1,5 +1,8 @@
 package com.local.test;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -20,7 +23,10 @@ import org.neo4j.graphdb.schema.Schema;
 public class Wrapper {
 	GraphDatabaseService graphDb;
 	Transaction tx;
-	String DB_PATH  = "E:\\neo4jdb2";
+	String DB_PATH  = "neo4jdb5";
+	
+	FileOutputStream out;
+	PrintStream p;
 	
 	int operatorCounter = 0;
 	int operatorMax = 5000;
@@ -32,6 +38,17 @@ public class Wrapper {
 	
 	public Wrapper(){
 		initDBFile();
+		initLogger();
+	}
+	
+	public void initLogger(){
+		try {
+			out=new FileOutputStream("neospeed.log");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		p=new PrintStream(out);
 	}
 	
 	public void initDBFile(){
@@ -49,16 +66,11 @@ public class Wrapper {
 	public void createRelation(String node1Label, String node1Key, Object node1Value,
 			String node2Label, String node2Key, Object node2Value,
 			RelationshipType relationType, String relationKey, Object relationValue){
-		Node node1, node2;
 		Relationship relationship;
 		Label label = DynamicLabel.label(node1Label);
-		ResourceIterator<Node> node1s = graphDb.findNodesByLabelAndProperty(label, node1Key, node1Value).iterator();
 		label = DynamicLabel.label(node2Label);
-		while(node1s.hasNext()){
-			node1 = node1s.next();
-			ResourceIterator<Node> node2s = graphDb.findNodesByLabelAndProperty(label, node2Key, node2Value).iterator();
-			while(node2s.hasNext()){
-				node2 = node2s.next();
+		for(Node node1:graphDb.findNodesByLabelAndProperty(label, node1Key, node1Value)){
+			for(Node node2:graphDb.findNodesByLabelAndProperty(label, node2Key, node2Value)){
 				relationship = node1.createRelationshipTo(node2, relationType);
 				relationship.setProperty(relationKey, relationValue);
 			}
@@ -73,10 +85,15 @@ public class Wrapper {
 			operatorCounter = 0;
 		}
 	}
+	long startMili=System.currentTimeMillis();
+	long endMili = System.currentTimeMillis();
 	
 	public void sendToDB(){
 		tx.success();
 		tx.close();
+		System.out.println("Data gen:"+(System.currentTimeMillis()-startMili) +"ms");
+		p.print((System.currentTimeMillis()-startMili)+"  ");
+		startMili=System.currentTimeMillis();
 		tx = graphDb.beginTx();
 	}
 	
@@ -110,6 +127,11 @@ public class Wrapper {
 				System.out.println(i);
 				System.out.println("Interval cost::"+(System.currentTimeMillis()-tempMili) +"ms");
 				System.out.println("Total:"+(System.currentTimeMillis()-startMili) +"ms");
+				w.p.println();
+				w.p.println(i);
+				w.p.println("Interval cost:"+(System.currentTimeMillis()-tempMili) +"ms");
+				w.p.println("Total:"+(System.currentTimeMillis()-startMili) +"ms");
+				w.p.println();
 				tempMili = System.currentTimeMillis();
 			}
 		}
@@ -120,5 +142,6 @@ public class Wrapper {
 //		w.createRelation("Node", "foo", 1, "Node", "foo", 2, Wrapper.RelTypes.KNOWS, "RRRR", 12);
 		w.tx.success();
 		w.tx.close();
+		w.p.close();
 	}
 }
